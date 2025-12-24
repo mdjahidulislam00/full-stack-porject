@@ -5,7 +5,7 @@ export default function Home() {
   const [msg, setMsg] = useState("Loading...");
 
   useEffect(() => {
-    fetch('/api/test')
+    fetch('/api/server')
       .then(res => res.json())
       .then(data => setMsg(data.message))
       .catch(() => setMsg("Backend still not found!"));
