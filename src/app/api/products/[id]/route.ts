@@ -2,41 +2,22 @@ import { connectDB } from '@/lib/mongodb';
 import { Product } from '@/model/Product';
 import { NextRequest, NextResponse } from 'next/server';
 
-// ১. ডিলিট অপারেশন (DELETE)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // এখানে Promise ব্যবহার করতে হবে
+  { params }: { params: Promise<{ id: string }> } // Next.js 15 এ Promise ব্যবহার করতে হয়
 ) {
-  await connectDB();
-  const { id } = await params; // params-কে await করতে হবে
-
   try {
+    await connectDB();
+    const { id } = await params; // id-টি বের করে নেওয়া
+
     const deletedProduct = await Product.findByIdAndDelete(id);
+
     if (!deletedProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
-    return NextResponse.json({ message: "Product Deleted Successfully" });
-  } catch (error) {
-    return NextResponse.json({ error: "Invalid ID or Server Error" }, { status: 500 });
-  }
-}
 
-// ২. আপডেট অপারেশন (PUT)
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // এখানেও Promise
-) {
-  await connectDB();
-  const { id } = await params; // await করা বাধ্যতামূলক
-  const body = await request.json();
-
-  try {
-    const updated = await Product.findByIdAndUpdate(id, body, { new: true });
-    if (!updated) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-    return NextResponse.json(updated);
+    return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Update Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Server error during deletion" }, { status: 500 });
   }
 }
