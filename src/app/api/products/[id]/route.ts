@@ -1,7 +1,7 @@
 // src/app/api/products/[id]/route.ts
 
 import { connectDB } from '@/lib/mongodb';
-import { Product } from '@/models/Product'; // নিশ্চিত করুন ফোল্ডার নাম 'models' নাকি 'model'
+import { Product } from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(
@@ -26,7 +26,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Delete Error:", error.message);
     return NextResponse.json({ error: "Server error during deletion" }, { status: 500 });
   }
