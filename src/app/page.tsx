@@ -2,20 +2,49 @@
 import { useEffect, useState } from 'react';
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState([]);
+ const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // প্রোডাক্ট লোড করা
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
-      .then(data => setProducts(data));
+      .then(data => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(err => console.error("Loading error:", err));
   }, []);
 
   const deleteProduct = async (id: string) => {
-    if (confirm("Are you sure?")) {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      setProducts(products.filter((p: any) => p._id !== id));
+    if (!confirm("Are you sure?")) return;
+
+    try {
+      // ডিলিট রিকোয়েস্ট পাঠানো
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        // যদি সফল হয় তবে লিস্ট আপডেট করা
+        setProducts(products.filter((p: any) => p._id !== id));
+        alert("Product deleted successfully!");
+      } else {
+        // যদি ৪-০-৫ বা অন্য এরর আসে
+        const errorData = await response.json();
+        alert(`Error: ${errorData.error || 'Failed to delete'}`);
+        console.error("Server Response:", errorData);
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
+      console.error("Delete call failed:", err);
     }
   };
+
+  if (loading) return <p className="text-center mt-10">Loading Products...</p>;
 
   return (
     <div className="p-8">
