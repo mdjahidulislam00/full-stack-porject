@@ -26,20 +26,11 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 });
-  } catch (error) {
-    console.error("Delete Error:", error instanceof Error ? error.message : String(error));
-    return NextResponse.json({ error: "Server error during deletion" }, { status: 500 });
-  }
+  } catch (error: any) {
+    console.error("Delete Error:", error.message || error);
+    return NextResponse.json(
+      { error: "Server error during deletion" },
+      { status: 500 }
+    );
 }
-
-// ৪-০-৫ এরর এড়াতে PUT বা GET (ID ভিত্তিক) ফাংশনও এই ফাইলে রাখতে পারেন
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  await connectDB();
-  const { id } = await params;
-  const product = await Product.findById(id);
-  if (!product) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(product);
 }
