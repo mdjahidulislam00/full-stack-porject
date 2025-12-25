@@ -1,5 +1,3 @@
-// src/app/api/products/[id]/route.ts
-
 import { connectDB } from '@/lib/mongodb';
 import { Product } from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,14 +8,7 @@ export async function DELETE(
 ) {
   try {
     await connectDB();
-
-    // Next.js 15 অনুযায়ী params await করতে হবে
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
-
-    if (!id) {
-      return NextResponse.json({ error: "ID is missing" }, { status: 400 });
-    }
+    const { id } = await params;
 
     const deletedProduct = await Product.findByIdAndDelete(id);
 
@@ -26,11 +17,20 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: "Product deleted successfully" }, { status: 200 });
-  } catch (error: any) {
-    console.error("Delete Error:", error.message || error);
+
+  } catch (error: unknown) {
+    // টাইপস্ক্রিপ্ট এরর হ্যান্ডলিং ঠিক করার প্রফেশনাল উপায়
+    let errorMessage = "An unknown error occurred";
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    console.error("Delete Error:", errorMessage);
+
     return NextResponse.json(
-      { error: "Server error during deletion" },
+      { error: "Server error during deletion", details: errorMessage },
       { status: 500 }
     );
-}
+  }
 }
